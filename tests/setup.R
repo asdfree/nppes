@@ -39,19 +39,11 @@ dbGetQuery( db ,
 	FROM npi 
 	GROUP BY provider_gender_code" 
 )
-dbSendQuery( db , 
-	"CREATE FUNCTION 
-		div_noerror(l DOUBLE, r DOUBLE) 
-	RETURNS DOUBLE 
-	EXTERNAL NAME calc.div_noerror" 
-)
 dbGetQuery( db , 
 	"SELECT 
 		is_sole_proprietor , 
-		div_noerror( 
-			COUNT(*) , 
-			( SELECT COUNT(*) FROM npi ) 
-		) AS share_is_sole_proprietor
+		COUNT(*) / ( SELECT COUNT(*) FROM npi ) 
+			AS share_is_sole_proprietor
 	FROM npi 
 	GROUP BY is_sole_proprietor" 
 )
