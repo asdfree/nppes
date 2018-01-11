@@ -56,12 +56,22 @@ dbGetQuery( db ,
 	FROM npi 
 	GROUP BY provider_gender_code" 
 )
-dbGetQuery( db , "SELECT QUANTILE( provider_enumeration_year , 0.5 ) FROM npi" )
+RSQLite::initExtension( db )
+
+dbGetQuery( db , 
+	"SELECT 
+		LOWER_QUARTILE( provider_enumeration_year ) , 
+		MEDIAN( provider_enumeration_year ) , 
+		UPPER_QUARTILE( provider_enumeration_year ) 
+	FROM npi" 
+)
 
 dbGetQuery( db , 
 	"SELECT 
 		provider_gender_code , 
-		QUANTILE( provider_enumeration_year , 0.5 ) AS median_provider_enumeration_year
+		LOWER_QUARTILE( provider_enumeration_year ) AS lower_quartile_provider_enumeration_year , 
+		MEDIAN( provider_enumeration_year ) AS median_provider_enumeration_year , 
+		UPPER_QUARTILE( provider_enumeration_year ) AS upper_quartile_provider_enumeration_year
 	FROM npi 
 	GROUP BY provider_gender_code" 
 )
@@ -71,18 +81,20 @@ dbGetQuery( db ,
 	FROM npi
 	WHERE provider_business_practice_location_address_state_name = 'CA'"
 )
+RSQLite::initExtension( db )
+
 dbGetQuery( db , 
 	"SELECT 
-		VAR_SAMP( provider_enumeration_year ) , 
-		STDDEV_SAMP( provider_enumeration_year ) 
+		VARIANCE( provider_enumeration_year ) , 
+		STDEV( provider_enumeration_year ) 
 	FROM npi" 
 )
 
 dbGetQuery( db , 
 	"SELECT 
 		provider_gender_code , 
-		VAR_SAMP( provider_enumeration_year ) AS var_provider_enumeration_year ,
-		STDDEV_SAMP( provider_enumeration_year ) AS stddev_provider_enumeration_year
+		VARIANCE( provider_enumeration_year ) AS var_provider_enumeration_year ,
+		STDEV( provider_enumeration_year ) AS stddev_provider_enumeration_year
 	FROM npi 
 	GROUP BY provider_gender_code" 
 )
