@@ -98,19 +98,6 @@ dbGetQuery( db ,
 	FROM npi 
 	GROUP BY provider_gender_code" 
 )
-dbGetQuery( db , 
-	"SELECT 
-		CORR( CAST( individual AS DOUBLE ) , CAST( provider_enumeration_year AS DOUBLE ) )
-	FROM npi" 
-)
-
-dbGetQuery( db , 
-	"SELECT 
-		provider_gender_code , 
-		CORR( CAST( individual AS DOUBLE ) , CAST( provider_enumeration_year AS DOUBLE ) )
-	FROM npi 
-	GROUP BY provider_gender_code" 
-)
 library(dplyr)
 dplyr_db <- dplyr::src_sqlite( dbdir )
 nppes_tbl <- tbl( dplyr_db , 'npi' )
