@@ -100,7 +100,7 @@ dbGetQuery( db ,
 	FROM npi 
 	GROUP BY provider_gender_code" 
 )
-nppes_three_columns_df <- 
+nppes_slim_df <- 
 	dbGetQuery( db , 
 		"SELECT 
 			provider_enumeration_year , 
@@ -109,14 +109,15 @@ nppes_three_columns_df <-
 		FROM npi" 
 	)
 
-t.test( provider_enumeration_year ~ individual , nppes_three_columns_df )
-this_table <- table( nppes_three_columns_df[ , c( "individual" , "is_sole_proprietor" ) ] )
+t.test( provider_enumeration_year ~ individual , nppes_slim_df )
+this_table <-
+	table( nppes_slim_df[ , c( "individual" , "is_sole_proprietor" ) ] )
 
 chisq.test( this_table )
 glm_result <- 
 	glm( 
 		provider_enumeration_year ~ individual + is_sole_proprietor , 
-		data = nppes_three_columns_df
+		data = nppes_slim_df
 	)
 
 summary( glm_result )
