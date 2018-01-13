@@ -6,7 +6,7 @@ Author: Anthony Joseph Damico
 Maintainer: Anthony Joseph Damico <ajdamico@gmail.com>
 Description: A continuous integration package, tested on ajdamico/asdfree commit ee691f35375e2f56fef7c2c2464686cac34e5a7a ajdamico/lodown commit 39f671ce8673f10d73f9774e19fb426e58f3b1fd
 License: GPL-3
-Imports: DBI, lodown, dplyr
+Imports: DBI, lodown, dplyr, dbplyr
 Encoding: UTF-8
 LazyData: true
 Remotes: ajdamico/lodown
