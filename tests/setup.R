@@ -5,7 +5,11 @@ options("lodown.cachaca.savecache"=FALSE)
 library(lodown)
 lodown( "nppes" , output_dir = file.path( getwd() ) )
 column_names <-
-	names( read.csv( catalog$output_filename , nrow = 1 )[ FALSE , , ] )
+	names( 
+		read.csv( 
+			file.path( getwd() , "nppes.csv" ) , 
+			nrow = 1 )[ FALSE , , ] 
+	)
 
 column_names <- gsub( "\." , "_" , tolower( column_names ) )
 
@@ -25,7 +29,8 @@ stopifnot( all( columns_to_import %in% column_names ) )
 nppes_df <- 
 	data.frame( 
 		readr::read_csv( 
-			catalog$output_filename , 
+			file.path( getwd() , 
+				"nppes.csv" ) , 
 			col_names = columns_to_import , 
 			col_types = 
 				paste0( 
@@ -35,8 +40,6 @@ nppes_df <-
 			skip = 1
 		) 
 	)
-	
-stopifnot( nrow( nppes_df ) == catalog$case_count )
 
 nppes_df <- 
 	transform( 
