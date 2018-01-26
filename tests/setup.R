@@ -4,131 +4,105 @@ options("lodown.cachaca.savecache"=FALSE)
 
 library(lodown)
 lodown( "nppes" , output_dir = file.path( getwd() ) )
-library(DBI)
-dbdir <- file.path( getwd() , "SQLite.db" )
-db <- dbConnect( RSQLite::SQLite() , dbdir )
+column_names <-
+	names( read.csv( catalog$output_filename , nrow = 1 )[ FALSE , , ] )
 
-dbSendQuery( db , "ALTER TABLE npi ADD COLUMN individual INTEGER" )
+column_names <- gsub( "\." , "_" , tolower( column_names ) )
 
-dbSendQuery( db , 
-	"UPDATE npi 
-	SET individual = 
-		CASE WHEN entity_type_code = 1 THEN 1 ELSE 0 END" 
-)
-
-dbSendQuery( db , "ALTER TABLE npi ADD COLUMN provider_enumeration_year INTEGER" )
-
-dbSendQuery( db , 
-	"UPDATE npi 
-	SET provider_enumeration_year = 
-		CAST( SUBSTR( provider_enumeration_date , 7 , 10 ) AS INTEGER )" 
-)
-dbGetQuery( db , "SELECT COUNT(*) FROM npi" )
-
-dbGetQuery( db ,
-	"SELECT
-		provider_gender_code ,
-		COUNT(*) 
-	FROM npi
-	GROUP BY provider_gender_code"
-)
-dbGetQuery( db , "SELECT AVG( provider_enumeration_year ) FROM npi" )
-
-dbGetQuery( db , 
-	"SELECT 
-		provider_gender_code , 
-		AVG( provider_enumeration_year ) AS mean_provider_enumeration_year
-	FROM npi 
-	GROUP BY provider_gender_code" 
-)
-dbGetQuery( db , 
-	"SELECT 
-		is_sole_proprietor , 
-		COUNT(*) / ( SELECT COUNT(*) FROM npi ) 
-			AS share_is_sole_proprietor
-	FROM npi 
-	GROUP BY is_sole_proprietor" 
-)
-dbGetQuery( db , "SELECT SUM( provider_enumeration_year ) FROM npi" )
-
-dbGetQuery( db , 
-	"SELECT 
-		provider_gender_code , 
-		SUM( provider_enumeration_year ) AS sum_provider_enumeration_year 
-	FROM npi 
-	GROUP BY provider_gender_code" 
-)
-RSQLite::initExtension( db )
-
-dbGetQuery( db , 
-	"SELECT 
-		LOWER_QUARTILE( provider_enumeration_year ) , 
-		MEDIAN( provider_enumeration_year ) , 
-		UPPER_QUARTILE( provider_enumeration_year ) 
-	FROM npi" 
-)
-
-dbGetQuery( db , 
-	"SELECT 
-		provider_gender_code , 
-		LOWER_QUARTILE( provider_enumeration_year ) AS lower_quartile_provider_enumeration_year , 
-		MEDIAN( provider_enumeration_year ) AS median_provider_enumeration_year , 
-		UPPER_QUARTILE( provider_enumeration_year ) AS upper_quartile_provider_enumeration_year
-	FROM npi 
-	GROUP BY provider_gender_code" 
-)
-dbGetQuery( db ,
-	"SELECT
-		AVG( provider_enumeration_year )
-	FROM npi
-	WHERE provider_business_practice_location_address_state_name = 'CA'"
-)
-RSQLite::initExtension( db )
-
-dbGetQuery( db , 
-	"SELECT 
-		VARIANCE( provider_enumeration_year ) , 
-		STDEV( provider_enumeration_year ) 
-	FROM npi" 
-)
-
-dbGetQuery( db , 
-	"SELECT 
-		provider_gender_code , 
-		VARIANCE( provider_enumeration_year ) AS var_provider_enumeration_year ,
-		STDEV( provider_enumeration_year ) AS stddev_provider_enumeration_year
-	FROM npi 
-	GROUP BY provider_gender_code" 
-)
-nppes_slim_df <- 
-	dbGetQuery( db , 
-		"SELECT 
-			provider_enumeration_year , 
-			individual ,
-			is_sole_proprietor
-		FROM npi" 
+column_types <-
+	ifelse( 
+		grepl( "code" , column_names ) & 
+		!grepl( "country|state|gender|taxonomy|postal" , column_names ) , 
+		'n' , 'c' 
 	)
 
-t.test( provider_enumeration_year ~ individual , nppes_slim_df )
-this_table <-
-	table( nppes_slim_df[ , c( "individual" , "is_sole_proprietor" ) ] )
+columns_to_import <-
+	c( "entity_type_code" , "provider_gender_code" , "provider_enumeration_date" ,
+	"is_sole_proprietor" , "provider_business_practice_location_address_state_name" )
+
+stopifnot( all( columns_to_import %in% column_names ) )
+
+nppes_df <- 
+	data.frame( 
+		readr::read_csv( 
+			catalog$output_filename , 
+			col_names = columns_to_import , 
+			col_types = 
+				paste0( 
+					ifelse( column_names %in% columns_to_import , column_types , '_' ) , 
+					collapse = "" 
+				) ,
+			skip = 1
+		) 
+	)
+	
+stopifnot( nrow( nppes_df ) == catalog$case_count )
+
+nppes_df <- 
+	transform( 
+		nppes_df , 
+		
+		individual = as.numeric( entity_type_code ) ,
+		
+		provider_enumeration_year = substr( provider_enumeration_date , 7 , 10 )
+		
+	)
+nrow( nppes_df )
+
+table( nppes_df[ , "provider_gender_code" ] , useNA = "always" )
+mean( nppes_df[ , "provider_enumeration_year" ] )
+
+tapply(
+	nppes_df[ , "provider_enumeration_year" ] ,
+	nppes_df[ , "provider_gender_code" ] ,
+	mean 
+)
+prop.table( table( nppes_df[ , "is_sole_proprietor" ] ) )
+
+prop.table(
+	table( nppes_df[ , c( "is_sole_proprietor" , "provider_gender_code" ) ] ) ,
+	margin = 2
+)
+sum( nppes_df[ , "provider_enumeration_year" ] )
+
+tapply(
+	nppes_df[ , "provider_enumeration_year" ] ,
+	nppes_df[ , "provider_gender_code" ] ,
+	sum 
+)
+quantile( nppes_df[ , "provider_enumeration_year" ] , 0.5 )
+
+tapply(
+	nppes_df[ , "provider_enumeration_year" ] ,
+	nppes_df[ , "provider_gender_code" ] ,
+	quantile ,
+	0.5 
+)
+sub_nppes_df <- subset( nppes_df , provider_business_practice_location_address_state_name = 'CA' )
+mean( sub_nppes_df[ , "provider_enumeration_year" ] )
+var( nppes_df[ , "provider_enumeration_year" ] )
+
+tapply(
+	nppes_df[ , "provider_enumeration_year" ] ,
+	nppes_df[ , "provider_gender_code" ] ,
+	var 
+)
+t.test( provider_enumeration_year ~ individual , nppes_df )
+this_table <- table( nppes_df[ , c( "individual" , "is_sole_proprietor" ) ] )
 
 chisq.test( this_table )
 glm_result <- 
 	glm( 
 		provider_enumeration_year ~ individual + is_sole_proprietor , 
-		data = nppes_slim_df
+		data = nppes_df
 	)
 
 summary( glm_result )
 library(dplyr)
-library(dbplyr)
-dplyr_db <- dplyr::src_sqlite( dbdir )
-nppes_tbl <- tbl( dplyr_db , 'npi' )
+nppes_tbl <- tbl_df( nppes_df )
 nppes_tbl %>%
 	summarize( mean = mean( provider_enumeration_year ) )
 
 nppes_tbl %>%
 	group_by( provider_gender_code ) %>%
 	summarize( mean = mean( provider_enumeration_year ) )
-dbGetQuery( db , "SELECT COUNT(*) FROM npi" )
