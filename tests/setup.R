@@ -53,12 +53,13 @@ nppes_df <-
 nrow( nppes_df )
 
 table( nppes_df[ , "provider_gender_code" ] , useNA = "always" )
-mean( nppes_df[ , "provider_enumeration_year" ] )
+mean( nppes_df[ , "provider_enumeration_year" ] , na.rm = TRUE )
 
 tapply(
 	nppes_df[ , "provider_enumeration_year" ] ,
 	nppes_df[ , "provider_gender_code" ] ,
-	mean 
+	mean ,
+	na.rm = TRUE 
 )
 prop.table( table( nppes_df[ , "is_sole_proprietor" ] ) )
 
@@ -66,29 +67,32 @@ prop.table(
 	table( nppes_df[ , c( "is_sole_proprietor" , "provider_gender_code" ) ] ) ,
 	margin = 2
 )
-sum( nppes_df[ , "provider_enumeration_year" ] )
+sum( nppes_df[ , "provider_enumeration_year" ] , na.rm = TRUE )
 
 tapply(
 	nppes_df[ , "provider_enumeration_year" ] ,
 	nppes_df[ , "provider_gender_code" ] ,
-	sum 
+	sum ,
+	na.rm = TRUE 
 )
-quantile( nppes_df[ , "provider_enumeration_year" ] , 0.5 )
+quantile( nppes_df[ , "provider_enumeration_year" ] , 0.5 , na.rm = TRUE )
 
 tapply(
 	nppes_df[ , "provider_enumeration_year" ] ,
 	nppes_df[ , "provider_gender_code" ] ,
 	quantile ,
-	0.5 
+	0.5 ,
+	na.rm = TRUE 
 )
 sub_nppes_df <- subset( nppes_df , provider_business_practice_location_address_state_name = 'CA' )
-mean( sub_nppes_df[ , "provider_enumeration_year" ] )
-var( nppes_df[ , "provider_enumeration_year" ] )
+mean( sub_nppes_df[ , "provider_enumeration_year" ] , na.rm = TRUE )
+var( nppes_df[ , "provider_enumeration_year" ] , na.rm = TRUE )
 
 tapply(
 	nppes_df[ , "provider_enumeration_year" ] ,
 	nppes_df[ , "provider_gender_code" ] ,
-	var 
+	var ,
+	na.rm = TRUE 
 )
 t.test( provider_enumeration_year ~ individual , nppes_df )
 this_table <- table( nppes_df[ , c( "individual" , "is_sole_proprietor" ) ] )
@@ -104,8 +108,8 @@ summary( glm_result )
 library(dplyr)
 nppes_tbl <- tbl_df( nppes_df )
 nppes_tbl %>%
-	summarize( mean = mean( provider_enumeration_year ) )
+	summarize( mean = mean( provider_enumeration_year , na.rm = TRUE ) )
 
 nppes_tbl %>%
 	group_by( provider_gender_code ) %>%
-	summarize( mean = mean( provider_enumeration_year ) )
+	summarize( mean = mean( provider_enumeration_year , na.rm = TRUE ) )
