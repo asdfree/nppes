@@ -6,7 +6,7 @@ library(lodown)
 lodown( "nppes" , output_dir = file.path( getwd() ) )
 npi_filepath <-
 	grep(
-		"npidata_pfile_20050523-([0-9]+)\.csv" ,
+		"npidata_pfile_20050523-([0-9]+)\\.csv" ,
 		list.files(
 			file.path( getwd() ) ,
 			full.names = TRUE
