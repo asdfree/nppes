@@ -4,10 +4,20 @@ options("lodown.cachaca.savecache"=FALSE)
 
 library(lodown)
 lodown( "nppes" , output_dir = file.path( getwd() ) )
+npi_filepath <-
+	grep(
+		"npidata_pfile_20050523-([0-9]+)\.csv" ,
+		list.files(
+			file.path( getwd() ) ,
+			full.names = TRUE
+		) ,
+		value = TRUE
+	)
+	
 column_names <-
 	names( 
 		read.csv( 
-			file.path( getwd() , "nppes.csv" ) , 
+			npi_filepath , 
 			nrow = 1 )[ FALSE , , ] 
 	)
 
@@ -33,8 +43,7 @@ columns_to_import <-
 nppes_df <- 
 	data.frame( 
 		readr::read_csv( 
-			file.path( getwd() , 
-				"nppes.csv" ) , 
+			npi_filepath , 
 			col_names = columns_to_import , 
 			col_types = 
 				paste0( 
