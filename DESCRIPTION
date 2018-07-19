@@ -4,7 +4,7 @@ Title: nppes
 Version: 0.1.0
 Author: Anthony Joseph Damico
 Maintainer: Anthony Joseph Damico <ajdamico@gmail.com>
-Description: A continuous integration package, tested on ajdamico/asdfree commit cd067d853b4463992c8d4dd55026793fd76777c6 ajdamico/lodown commit 722f4d3bc637548b0f793f4bd22afb2d59b33edb
+Description: A continuous integration package, tested on ajdamico/asdfree commit 377015d03cc274a43b87d33af4887b4b42b36a98 ajdamico/lodown commit 722f4d3bc637548b0f793f4bd22afb2d59b33edb
 License: GPL-3
 Imports: lodown, dplyr
 Encoding: UTF-8
