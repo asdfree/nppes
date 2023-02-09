@@ -5,6 +5,8 @@
 tf <- tempfile()
 this_url <- "https://download.cms.gov/nppes/NPPES_Data_Dissemination_January_2023.zip"
 download.file( this_url , tf , mode = 'wb' )
+z <- unzip( tf , exdir = tempdir() )
+print( z )
 
 npi_filepath <-
 	grep(
