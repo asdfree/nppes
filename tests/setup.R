@@ -1,23 +1,18 @@
 #
 #
 #
+library(readr)
 
 tf <- tempfile()
 this_url <- "https://download.cms.gov/nppes/NPPES_Data_Dissemination_January_2023.zip"
 download.file( this_url , tf , mode = 'wb' )
-z <- unzip( tf , exdir = tempdir() )
-print( z )
-
+npi_files <- unzip( tf , exdir = tempdir() )
 npi_filepath <-
 	grep(
 		"npidata_pfile_20050523-([0-9]+)\\.csv" ,
-		list.files(
-			file.path( path.expand( "~" ) , "NPPES" ) ,
-			full.names = TRUE
-		) ,
+		npi_files ,
 		value = TRUE
 	)
-	
 column_names <-
 	names( 
 		read.csv( 
