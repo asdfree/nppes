@@ -75,7 +75,9 @@ nppes_df <-
 		
 		individual = as.numeric( entity_type_code ) ,
 		
-		provider_enumeration_year = as.numeric( substr( provider_enumeration_date , 7 , 10 ) )
+		provider_enumeration_year = as.numeric( substr( provider_enumeration_date , 7 , 10 ) ) ,
+		
+		state_name = provider_business_practice_location_address_state_name
 		
 	)
 nrow( nppes_df )
@@ -112,7 +114,7 @@ tapply(
 	0.5 ,
 	na.rm = TRUE 
 )
-sub_nppes_df <- subset( nppes_df , provider_business_practice_location_address_state_name = 'CA' )
+sub_nppes_df <- subset( nppes_df , state_name = 'CA' )
 mean( sub_nppes_df[ , "provider_enumeration_year" ] , na.rm = TRUE )
 var( nppes_df[ , "provider_enumeration_year" ] , na.rm = TRUE )
 
