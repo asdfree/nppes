@@ -68,7 +68,6 @@ nppes_tbl <-
 
 nppes_df <- 
 	data.frame( nppes_tbl )
-
 nppes_df <- 
 	transform( 
 		nppes_df , 
