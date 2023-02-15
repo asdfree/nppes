@@ -28,6 +28,7 @@ npi_filepath <-
 		npi_files ,
 		value = TRUE
 	)
+
 column_names <-
 	names( 
 		read.csv( 
@@ -68,6 +69,9 @@ nppes_tbl <-
 
 nppes_df <- 
 	data.frame( nppes_tbl )
+# nppes_fn <- file.path( path.expand( "~" ) , "NPPES" , "this_file.rds" )
+# saveRDS( nppes_df , file = nppes_fn , compress = FALSE )
+# nppes_df <- readRDS( nppes_fn )
 nppes_df <- 
 	transform( 
 		nppes_df , 
