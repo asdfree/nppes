@@ -152,3 +152,18 @@ nppes_dt <- data.table( nppes_df )
 nppes_dt[ , mean( provider_enumeration_year , na.rm = TRUE ) ]
 
 nppes_dt[ , mean( provider_enumeration_year , na.rm = TRUE ) , by = provider_gender_code ]
+library(duckdb)
+con <- dbConnect( duckdb::duckdb() , dbdir = 'my-db.duckdb' )
+dbWriteTable( con , 'nppes' , nppes_df )
+dbGetQuery( con , 'SELECT AVG( provider_enumeration_year ) FROM nppes' )
+
+dbGetQuery(
+	con ,
+	'SELECT
+		provider_gender_code ,
+		AVG( provider_enumeration_year )
+	FROM
+		nppes
+	GROUP BY
+		provider_gender_code'
+)
