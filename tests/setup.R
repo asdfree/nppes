@@ -147,3 +147,8 @@ nppes_tbl %>%
 nppes_tbl %>%
 	group_by( provider_gender_code ) %>%
 	summarize( mean = mean( provider_enumeration_year , na.rm = TRUE ) )
+library(data.table)
+nppes_dt <- data.table( nppes_df )
+nppes_dt[ , mean( provider_enumeration_year , na.rm = TRUE ) ]
+
+nppes_dt[ , mean( provider_enumeration_year , na.rm = TRUE ) , by = provider_gender_code ]
