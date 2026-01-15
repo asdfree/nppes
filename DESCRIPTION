@@ -9,3 +9,4 @@ License: GPL-3
 Imports: readr, dplyr, data.table, duckdb
 Encoding: UTF-8
 LazyData: true
+
