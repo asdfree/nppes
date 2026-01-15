@@ -1,6 +1,8 @@
 # how many doctors
 # ranked sergeant, last name pepper
 # practice in the states?
+options( timeout = 999 )
+
 library(readr)
 
 tf <- tempfile()
@@ -41,12 +43,12 @@ column_names <- gsub( "\\." , "_" , tolower( column_names ) )
 column_types <-
 	ifelse( 
 		grepl( "code" , column_names ) & 
-		!grepl( "country|state|gender|taxonomy|postal" , column_names ) , 
+		!grepl( "country|state|sex|taxonomy|postal" , column_names ) , 
 		'n' , 'c' 
 	)
 
 columns_to_import <-
-	c( "entity_type_code" , "provider_gender_code" , "provider_enumeration_date" ,
+	c( "entity_type_code" , "provider_sex_code" , "provider_enumeration_date" ,
 	"is_sole_proprietor" , "provider_business_practice_location_address_state_name" )
 
 stopifnot( all( columns_to_import %in% column_names ) )
@@ -86,26 +88,26 @@ nppes_df <-
 	)
 nrow( nppes_df )
 
-table( nppes_df[ , "provider_gender_code" ] , useNA = "always" )
+table( nppes_df[ , "provider_sex_code" ] , useNA = "always" )
 mean( nppes_df[ , "provider_enumeration_year" ] , na.rm = TRUE )
 
 tapply(
 	nppes_df[ , "provider_enumeration_year" ] ,
-	nppes_df[ , "provider_gender_code" ] ,
+	nppes_df[ , "provider_sex_code" ] ,
 	mean ,
 	na.rm = TRUE 
 )
 prop.table( table( nppes_df[ , "is_sole_proprietor" ] ) )
 
 prop.table(
-	table( nppes_df[ , c( "is_sole_proprietor" , "provider_gender_code" ) ] ) ,
+	table( nppes_df[ , c( "is_sole_proprietor" , "provider_sex_code" ) ] ) ,
 	margin = 2
 )
 sum( nppes_df[ , "provider_enumeration_year" ] , na.rm = TRUE )
 
 tapply(
 	nppes_df[ , "provider_enumeration_year" ] ,
-	nppes_df[ , "provider_gender_code" ] ,
+	nppes_df[ , "provider_sex_code" ] ,
 	sum ,
 	na.rm = TRUE 
 )
@@ -113,7 +115,7 @@ quantile( nppes_df[ , "provider_enumeration_year" ] , 0.5 , na.rm = TRUE )
 
 tapply(
 	nppes_df[ , "provider_enumeration_year" ] ,
-	nppes_df[ , "provider_gender_code" ] ,
+	nppes_df[ , "provider_sex_code" ] ,
 	quantile ,
 	0.5 ,
 	na.rm = TRUE 
@@ -124,7 +126,7 @@ var( nppes_df[ , "provider_enumeration_year" ] , na.rm = TRUE )
 
 tapply(
 	nppes_df[ , "provider_enumeration_year" ] ,
-	nppes_df[ , "provider_gender_code" ] ,
+	nppes_df[ , "provider_sex_code" ] ,
 	var ,
 	na.rm = TRUE 
 )
@@ -145,13 +147,13 @@ nppes_tbl %>%
 	summarize( mean = mean( provider_enumeration_year , na.rm = TRUE ) )
 
 nppes_tbl %>%
-	group_by( provider_gender_code ) %>%
+	group_by( provider_sex_code ) %>%
 	summarize( mean = mean( provider_enumeration_year , na.rm = TRUE ) )
 library(data.table)
 nppes_dt <- data.table( nppes_df )
 nppes_dt[ , mean( provider_enumeration_year , na.rm = TRUE ) ]
 
-nppes_dt[ , mean( provider_enumeration_year , na.rm = TRUE ) , by = provider_gender_code ]
+nppes_dt[ , mean( provider_enumeration_year , na.rm = TRUE ) , by = provider_sex_code ]
 library(duckdb)
 con <- dbConnect( duckdb::duckdb() , dbdir = 'my-db.duckdb' )
 dbWriteTable( con , 'nppes' , nppes_df )
@@ -160,10 +162,10 @@ dbGetQuery( con , 'SELECT AVG( provider_enumeration_year ) FROM nppes' )
 dbGetQuery(
 	con ,
 	'SELECT
-		provider_gender_code ,
+		provider_sex_code ,
 		AVG( provider_enumeration_year )
 	FROM
 		nppes
 	GROUP BY
-		provider_gender_code'
+		provider_sex_code'
 )
